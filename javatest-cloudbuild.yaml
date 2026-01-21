@@ -1,0 +1,36 @@
+steps:
+  # Step 0: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - build
+      - -t
+      - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
+      - -f
+      - hello-dockerfile
+      - .
+
+  # Step 1: Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - push
+      - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
+
+  # Step 2: SSH into VM and run container
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Deploy-to-VM
+    args:
+    - compute
+    - ssh
+    - test-instance
+    - --zone=asia-south1-c
+    - --command
+    - |
+      sudo docker pull asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
+      sudo docker rm -f javatestapp || true
+      sudo docker run -d --name javatestapp -p 8080:8080 \
+        asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
+
+images:
+  - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest

@@ -1,0 +1,4 @@
+com\alfahadh\hello\HelloApplication.class
+com\alfahadh\hello\controller\HelloController.class
+com\alfahadh\hello\model\MessageResponse.class
+com\alfahadh\hello\service\HelloService.class
