@@ -32,7 +32,6 @@ steps:
       sudo docker run -d --name javatestapp -p 8080:8080 \
         asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
 
-
 images:
   - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
 options:
