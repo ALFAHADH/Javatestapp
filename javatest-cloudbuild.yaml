@@ -1,9 +1,11 @@
 steps:
-  # Step 0: Build Docker image
+  # Step 0: Build Docker image with BUILD_ID tag
   - name: 'gcr.io/cloud-builders/docker'
     id: Build
     args:
       - build
+      - -t
+      - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:$BUILD_ID
       - -t
       - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
       - -f
@@ -15,24 +17,32 @@ steps:
     id: Push
     args:
       - push
+      - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:$BUILD_ID
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push-latest
+    args:
+      - push
       - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
 
-  # Step 2: SSH into VM and run container
+  # Step 2: SSH into VM and run container using BUILD_ID
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Deploy-to-VM
     args:
-    - compute
-    - ssh
-    - test-instance
-    - --zone=asia-south1-c
-    - --command
-    - |
-      sudo docker pull asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
-      sudo docker rm -f javatestapp || true
-      sudo docker run -d --name javatestapp -p 8080:8080 \
-        asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
+      - compute
+      - ssh
+      - test-instance
+      - --zone=asia-south1-c
+      - --command
+      - |
+        sudo docker pull asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:$BUILD_ID
+        sudo docker rm -f javatestapp || true
+        sudo docker run -d --name javatestapp -p 8080:8080 \
+          asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:$BUILD_ID
 
 images:
+  - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:$BUILD_ID
   - asia-south1-docker.pkg.dev/alfahadh-practice/javatestapp/javatestapp:latest
+
 options:
   logging: CLOUD_LOGGING_ONLY
